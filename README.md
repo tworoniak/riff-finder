@@ -114,7 +114,21 @@ This project is designed with a **mock Spotify API layer** for local development
 git clone https://github.com/tworoniak/riff-finder.git
 cd riff-finder
 
+---
 
+## 🔄 Spotify API Integration (Planned)
+
+Spotify is currently being integrated into this project using a serverless/local proxy token strategy (Client Credentials flow). The app is structured so that switching from mock data to real Spotify endpoints is seamless.
+
+**Planned Spotify features include:**
+
+- Real Spotify artist search + details
+- Real top tracks + albums
+- Real related artist discovery
+- Audio previews and discovery queue
+- Shareable discovery URLs
+
+## 📁 Project Structure
 
 src/
   api/
