@@ -111,23 +111,23 @@ This project is designed with a **mock Spotify API layer** for local development
 ### 1. Clone the repo
 
 ```bash
-git clone https://github.com/your-username/riff-finder.git
+git clone https://github.com/tworoniak/riff-finder.git
 cd riff-finder
 
 
 
 src/
-api/
-endpoints.ts # Switchable mock/real API interface
-mockSpotify.ts # Mock Spotify-style API implementation
-queries.ts # TanStack query keys + query functions
-types.ts # Shared API data types
-hooks/
-useDebouncedValue.ts
-layouts/
-AppLayout.tsx
-pages/
-HomePage.tsx
-ArtistPage.tsx
-DiscoverPage.tsx
+  api/
+    endpoints.ts # Switchable mock/real API interface
+    mockSpotify.ts # Mock Spotify-style API implementation
+    queries.ts # TanStack query keys + query functions
+    types.ts # Shared API data types
+  hooks/
+    useDebouncedValue.ts
+  layouts/
+    AppLayout.tsx
+  pages/
+    HomePage.tsx
+    ArtistPage.tsx
+    DiscoverPage.tsx
 ```
