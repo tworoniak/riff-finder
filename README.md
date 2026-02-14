@@ -62,9 +62,12 @@ Spotify is currently being integrated into this project using a serverless/local
 src/
 
 - api/
+- discover.ts
   - endpoints.ts # Switchable mock/real API interface
   - mockSpotify.ts # Mock Spotify-style API implementation
   - queries.ts # TanStack query keys + query functions
+  - spotify-token.ts
+  - spotify.ts
   - types.ts # Shared API data types
 - hooks/
   - useDebouncedValue.ts
