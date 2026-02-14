@@ -14,42 +14,55 @@ import {
   mockSearchArtists,
 } from './mockSpotify';
 
-// later: you’ll implement real Spotify versions and switch here
+import { spotifyFetch } from './spotify';
+
 const USE_MOCK = import.meta.env.VITE_USE_MOCK_SPOTIFY === 'true';
+const MARKET = import.meta.env.VITE_SPOTIFY_MARKET || 'US';
 
 export async function searchArtists(
   query: string,
   limit = 10,
 ): Promise<SearchArtistsResponse> {
   if (USE_MOCK) return mockSearchArtists(query, limit);
-  throw new Error('Real Spotify not enabled yet');
+
+  const q = encodeURIComponent(query.trim());
+  return spotifyFetch<SearchArtistsResponse>(
+    `/v1/search?q=${q}&type=artist&limit=${limit}`,
+  );
 }
 
 export async function getArtist(id: string): Promise<Artist> {
   if (USE_MOCK) return mockGetArtist(id);
-  throw new Error('Real Spotify not enabled yet');
+  return spotifyFetch<Artist>(`/v1/artists/${id}`);
 }
 
 export async function getArtistTopTracks(
   id: string,
-  _market?: string,
+  market = MARKET,
 ): Promise<TopTracksResponse> {
   if (USE_MOCK) return mockGetArtistTopTracks(id);
-  throw new Error('Real Spotify not enabled yet');
+  return spotifyFetch<TopTracksResponse>(
+    `/v1/artists/${id}/top-tracks?market=${market}`,
+  );
 }
 
 export async function getArtistAlbums(
   id: string,
-  _market?: string,
-  _includeGroups?: string,
+  market = MARKET,
+  includeGroups = 'album,single',
 ): Promise<AlbumsResponse> {
   if (USE_MOCK) return mockGetArtistAlbums(id);
-  throw new Error('Real Spotify not enabled yet');
+
+  return spotifyFetch<AlbumsResponse>(
+    `/v1/artists/${id}/albums?include_groups=${encodeURIComponent(includeGroups)}&market=${encodeURIComponent(market)}`,
+  );
 }
 
 export async function getRelatedArtists(
   id: string,
 ): Promise<RelatedArtistsResponse> {
   if (USE_MOCK) return mockGetRelatedArtists(id);
-  throw new Error('Real Spotify not enabled yet');
+  return spotifyFetch<RelatedArtistsResponse>(
+    `/v1/artists/${id}/related-artists`,
+  );
 }

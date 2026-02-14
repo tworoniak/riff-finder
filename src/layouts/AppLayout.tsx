@@ -2,8 +2,8 @@ import { Outlet, NavLink } from 'react-router-dom';
 
 export default function AppLayout() {
   return (
-    <div className='min-h-screen bg-zinc-950 text-zinc-100'>
-      <header className='border-b border-zinc-800'>
+    <div className='min-h-screen bg-background text-text'>
+      <header className='border-b border-faint/80'>
         <div className='mx-auto flex max-w-5xl items-center justify-between px-4 py-4'>
           <NavLink to='/' className='text-lg font-semibold tracking-tight'>
             Riff Finder
@@ -13,7 +13,7 @@ export default function AppLayout() {
             <NavLink
               to='/'
               className={({ isActive }) =>
-                `rounded-md px-3 py-1.5 ${isActive ? 'bg-zinc-800' : 'hover:bg-zinc-900'}`
+                `rounded-md px-3 py-1.5 ${isActive ? 'bg-surface border border-faint/80' : 'hover:bg-surface'}`
               }
               end
             >
@@ -23,7 +23,7 @@ export default function AppLayout() {
             <NavLink
               to='/discover'
               className={({ isActive }) =>
-                `rounded-md px-3 py-1.5 ${isActive ? 'bg-zinc-800' : 'hover:bg-zinc-900'}`
+                `rounded-md px-3 py-1.5 ${isActive ? 'bg-surface border border-faint/80' : 'hover:bg-surface'}`
               }
             >
               Discover

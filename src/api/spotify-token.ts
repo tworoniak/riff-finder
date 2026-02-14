@@ -1,11 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 
-type TokenResponse = {
-  access_token: string;
-  token_type: 'Bearer';
-  expires_in: number;
-};
-
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'GET') {
     res.setHeader('Allow', 'GET');
@@ -16,7 +10,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const clientSecret = process.env.SPOTIFY_CLIENT_SECRET;
 
   if (!clientId || !clientSecret) {
-    return res.status(500).json({ error: 'Missing Spotify env vars' });
+    return res.status(500).json({ error: 'Missing Spotify credentials' });
   }
 
   const basic = Buffer.from(`${clientId}:${clientSecret}`).toString('base64');
@@ -37,16 +31,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       const text = await r.text();
       return res
         .status(r.status)
-        .json({ error: 'Token request failed', detail: text });
+        .json({ error: 'Spotify token request failed', detail: text });
     }
 
-    const data = (await r.json()) as TokenResponse;
+    const data = await r.json();
 
-    // Cache token response at the edge briefly (Spotify tokens typically last 3600s)
+    // cache at edge for 5 minutes
     res.setHeader('Cache-Control', 's-maxage=300, stale-while-revalidate=300');
+
     return res.status(200).json(data);
-  } catch (e) {
-    console.error('Spotify token error:', e);
-    return res.status(500).json({ error: 'Token request error' });
+  } catch (err) {
+    console.error('Spotify token error:', err);
+    return res.status(500).json({ error: 'Spotify token request error' });
   }
 }
