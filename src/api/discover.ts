@@ -1,6 +1,6 @@
 import type { Artist } from './types';
-import { getRelatedArtists } from './endpoints';
 import { scoreCandidates, type ScoredArtist } from '../utils/discovery';
+import { buildSimilarArtistsByGenre } from './artistReplacements';
 
 export async function buildDiscovery(
   seedArtists: Artist[],
@@ -8,10 +8,11 @@ export async function buildDiscovery(
 ): Promise<ScoredArtist[]> {
   const candidatesBySeed = new Map<string, Artist[]>();
 
+  // For each seed artist, generate candidates using genre-based search
   const lists = await Promise.all(
     seedArtists.map(async (seed) => {
-      const { artists } = await getRelatedArtists(seed.id);
-      return [seed.id, artists] as const;
+      const candidates = await buildSimilarArtistsByGenre(seed, 10); // search limit max is 10
+      return [seed.id, candidates] as const;
     }),
   );
 
