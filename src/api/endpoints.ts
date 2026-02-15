@@ -1,16 +1,18 @@
 import type {
+  AlbumTracksResponse,
+  TrackResponse,
   AlbumsResponse,
   Artist,
-  RelatedArtistsResponse,
+  // RelatedArtistsResponse,
   SearchArtistsResponse,
-  TopTracksResponse,
+  // TopTracksResponse,
 } from './types';
 
 import {
   mockGetArtist,
   mockGetArtistAlbums,
-  mockGetArtistTopTracks,
-  mockGetRelatedArtists,
+  // mockGetArtistTopTracks,
+  // mockGetRelatedArtists,
   mockSearchArtists,
 } from './mockSpotify';
 
@@ -36,16 +38,6 @@ export async function getArtist(id: string): Promise<Artist> {
   return spotifyFetch<Artist>(`/v1/artists/${id}`);
 }
 
-export async function getArtistTopTracks(
-  id: string,
-  market = MARKET,
-): Promise<TopTracksResponse> {
-  if (USE_MOCK) return mockGetArtistTopTracks(id);
-  return spotifyFetch<TopTracksResponse>(
-    `/v1/artists/${id}/top-tracks?market=${market}`,
-  );
-}
-
 export async function getArtistAlbums(
   id: string,
   market = MARKET,
@@ -58,11 +50,25 @@ export async function getArtistAlbums(
   );
 }
 
-export async function getRelatedArtists(
-  id: string,
-): Promise<RelatedArtistsResponse> {
-  if (USE_MOCK) return mockGetRelatedArtists(id);
-  return spotifyFetch<RelatedArtistsResponse>(
-    `/v1/artists/${id}/related-artists`,
+export async function getArtistTopTracks(): Promise<never> {
+  throw new Error(
+    'Removed by Spotify (Feb 2026): GET /artists/{id}/top-tracks',
   );
+}
+
+export async function getRelatedArtists(): Promise<never> {
+  throw new Error(
+    'Not available in Spotify Dev Mode (Feb 2026): GET /artists/{id}/related-artists',
+  );
+}
+
+export async function getAlbumTracks(
+  albumId: string,
+): Promise<AlbumTracksResponse> {
+  // NOTE: limit param appears flaky for some endpoints; omit it.
+  return spotifyFetch<AlbumTracksResponse>(`/v1/albums/${albumId}/tracks`);
+}
+
+export async function getTrack(id: string): Promise<TrackResponse> {
+  return spotifyFetch<TrackResponse>(`/v1/tracks/${id}`);
 }

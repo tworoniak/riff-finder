@@ -4,6 +4,8 @@ import { useQuery } from '@tanstack/react-query';
 import { qk, qf } from '../api/queries';
 import type { Album, Artist, Track } from '../api/types';
 
+const MARKET = import.meta.env.VITE_SPOTIFY_MARKET || 'US';
+
 function Section({
   title,
   children,
@@ -85,10 +87,6 @@ function ArtistHeader({ artist }: { artist: Artist }) {
             <span className='text-sm text-zinc-400'>No genres listed</span>
           )}
         </div>
-
-        <div className='mt-3 text-sm text-zinc-400'>
-          Popularity: {artist.popularity}/100
-        </div>
       </div>
     </div>
   );
@@ -98,7 +96,7 @@ function TrackList({ tracks }: { tracks: Track[] }) {
   if (!tracks.length) {
     return (
       <div className='rounded-xl border border-zinc-800 bg-zinc-900/30 p-4 text-sm text-zinc-300'>
-        No top tracks available.
+        No notable tracks available.
       </div>
     );
   }
@@ -184,7 +182,7 @@ function RelatedArtists({ artists }: { artists: Artist[] }) {
   if (!artists.length) {
     return (
       <div className='rounded-xl border border-zinc-800 bg-zinc-900/30 p-4 text-sm text-zinc-300'>
-        No related artists available.
+        No similar artists available.
       </div>
     );
   }
@@ -234,38 +232,41 @@ export default function ArtistPage() {
     staleTime: 10 * 60_000,
   });
 
-  const topTracksQuery = useQuery({
-    queryKey: qk.topTracks(artistId, 'US'),
-    queryFn: qf.topTracks(artistId, 'US'),
-    enabled: !!artistId,
-    staleTime: 10 * 60_000,
-  });
-
   const albumsQuery = useQuery({
-    queryKey: qk.albums(artistId, 'US', 'album,single'),
-    queryFn: qf.albums(artistId, 'US', 'album,single'),
+    queryKey: qk.albums(artistId, MARKET, 'album,single'),
+    queryFn: qf.albums(artistId, MARKET, 'album,single'),
     enabled: !!artistId,
     staleTime: 10 * 60_000,
   });
 
-  const relatedQuery = useQuery({
-    queryKey: qk.related(artistId),
-    queryFn: qf.related(artistId),
-    enabled: !!artistId,
+  const notableTracksQuery = useQuery({
+    queryKey: qk.notableTracks(artistId),
+    queryFn: qf.notableTracks(albumsQuery.data?.items ?? []),
+    enabled: !!artistId && (albumsQuery.data?.items?.length ?? 0) > 0,
+    staleTime: 10 * 60_000,
+  });
+
+  const similarArtistsQuery = useQuery({
+    queryKey: qk.similarArtists(artistId),
+    queryFn: artistQuery.data
+      ? qf.similarArtists(artistQuery.data)
+      : async () => [],
+    enabled: !!artistId && !!artistQuery.data,
     staleTime: 10 * 60_000,
   });
 
   const tracks = useMemo(
-    () => topTracksQuery.data?.tracks ?? [],
-    [topTracksQuery.data],
+    () => notableTracksQuery.data ?? [],
+    [notableTracksQuery.data],
   );
+  const related = useMemo(
+    () => similarArtistsQuery.data ?? [],
+    [similarArtistsQuery.data],
+  );
+
   const albums = useMemo(
     () => albumsQuery.data?.items ?? [],
     [albumsQuery.data],
-  );
-  const related = useMemo(
-    () => relatedQuery.data?.artists ?? [],
-    [relatedQuery.data],
   );
 
   if (!artistId) {
@@ -299,13 +300,13 @@ export default function ArtistPage() {
     <div className='space-y-8'>
       <ArtistHeader artist={artistQuery.data} />
 
-      <Section title='Top tracks'>
-        {topTracksQuery.isLoading ? (
+      <Section title='Notable tracks'>
+        {notableTracksQuery.isLoading ? (
           <div className='h-32 w-full animate-pulse rounded-2xl bg-zinc-900/50' />
-        ) : topTracksQuery.isError ? (
+        ) : notableTracksQuery.isError ? (
           <InlineError
-            error={topTracksQuery.error}
-            friendly403='Top tracks require Spotify user login (coming next).'
+            error={notableTracksQuery.error}
+            friendly403='Notable tracks are currently unavailable.'
           />
         ) : (
           <TrackList tracks={tracks} />
@@ -318,20 +319,20 @@ export default function ArtistPage() {
         ) : albumsQuery.isError ? (
           <InlineError
             error={albumsQuery.error}
-            friendly403='Albums require Spotify user login (coming next).'
+            friendly403='Albums are currently unavailable.'
           />
         ) : (
           <AlbumGrid albums={albums} />
         )}
       </Section>
 
-      <Section title='Related artists'>
-        {relatedQuery.isLoading ? (
+      <Section title='Similar artists'>
+        {similarArtistsQuery.isLoading ? (
           <div className='h-40 w-full animate-pulse rounded-2xl bg-zinc-900/50' />
-        ) : relatedQuery.isError ? (
+        ) : similarArtistsQuery.isError ? (
           <InlineError
-            error={relatedQuery.error}
-            friendly403='Related artists require Spotify user login (coming next).'
+            error={similarArtistsQuery.error}
+            friendly403='Similar artists are currently unavailable.'
           />
         ) : (
           <RelatedArtists artists={related} />
