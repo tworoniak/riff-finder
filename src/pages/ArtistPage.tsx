@@ -92,6 +92,14 @@ function ArtistHeader({ artist }: { artist: Artist }) {
   );
 }
 
+function formatMs(ms: number) {
+  const totalSeconds = Math.floor(ms / 1000);
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+
+  return `${minutes}:${String(seconds).padStart(2, '0')}`;
+}
+
 function TrackList({ tracks }: { tracks: Track[] }) {
   if (!tracks.length) {
     return (
@@ -114,7 +122,7 @@ function TrackList({ tracks }: { tracks: Track[] }) {
               <span className='font-medium'>{t.name}</span>
             </div>
             <div className='mt-1 text-xs text-zinc-500'>
-              {Math.round(t.duration_ms / 1000)}s{' '}
+              {formatMs(t.duration_ms)}{' '}
               {t.preview_url ? '• preview available' : ''}
             </div>
           </div>

@@ -57,19 +57,20 @@ app.get('/api/spotify', async (req, res) => {
   const clientSecret = process.env.SPOTIFY_CLIENT_SECRET;
 
   const rawPath = req.query.path;
+  const path = typeof rawPath === 'string' ? rawPath.trim() : '';
+
   console.log('[spotify-proxy] requested path:', rawPath);
 
   if (!clientId || !clientSecret) {
     return res.status(500).json({ error: 'Missing Spotify credentials' });
   }
 
-  const path = typeof rawPath === 'string' ? rawPath.trim() : '';
   if (!path) return res.status(400).json({ error: 'Missing ?path=/v1/...' });
   if (!path.startsWith('/v1/')) {
     return res.status(400).json({ error: 'path must start with /v1/' });
   }
 
-  // ✅ Prefer user token if client provided one (PKCE)
+  // Prefer user token if present
   const authHeader = req.headers.authorization;
   const userToken =
     typeof authHeader === 'string' && authHeader.startsWith('Bearer ')
@@ -119,17 +120,10 @@ app.get('/api/spotify', async (req, res) => {
 
     const tokenToUse = userToken || appAccessToken;
 
-    console.log('[spotify-proxy] fetching:', `https://api.spotify.com${path}`);
+    const url = `https://api.spotify.com${path}`;
+    console.log('[spotify-proxy] fetching:', url);
 
-    console.log(
-      '[spotify-proxy] spotify status:',
-      spotifyRes.status,
-      spotifyRes.statusText,
-    );
-    console.log('[spotify-proxy] body length:', bodyText.length);
-    console.log('[spotify-proxy] body preview:', bodyText.slice(0, 200));
-
-    const spotifyRes = await fetch(`https://api.spotify.com${path}`, {
+    const spotifyRes = await fetch(url, {
       headers: {
         Authorization: `Bearer ${tokenToUse}`,
         Accept: 'application/json',
@@ -139,13 +133,18 @@ app.get('/api/spotify', async (req, res) => {
 
     const bodyText = await spotifyRes.text();
 
-    console.log('[spotify-proxy] spotify status:', spotifyRes.status);
+    console.log(
+      '[spotify-proxy] spotify status:',
+      spotifyRes.status,
+      spotifyRes.statusText,
+    );
     if (!spotifyRes.ok) {
-      console.log('[spotify-proxy] error body:', bodyText);
+      console.log('[spotify-proxy] error body:', bodyText.slice(0, 500));
     }
 
     res.status(spotifyRes.status);
 
+    // Return JSON if possible, otherwise raw
     try {
       return res.json(JSON.parse(bodyText));
     } catch {
@@ -153,7 +152,8 @@ app.get('/api/spotify', async (req, res) => {
     }
   } catch (err) {
     console.error('[spotify-proxy] proxy error:', err);
-    return res.status(500).json({ error: 'Spotify proxy error' });
+    const detail = err instanceof Error ? err.message : String(err);
+    return res.status(500).json({ error: 'Spotify proxy error', detail });
   }
 });
 
