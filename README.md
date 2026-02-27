@@ -1,12 +1,14 @@
-# React + TypeScript + Vite
-
-//////////////////////////////
-
 # Riff Finder 🎸
 
 Riff Finder is a music discovery web app built with **React + TypeScript** that allows users to search artists, explore artist details (top tracks, albums, related artists), and generate recommendations using a rules-based discovery algorithm.
 
 This project is designed with a **mock Spotify API layer** for local development and will later support full integration with the Spotify Web API.
+
+---
+
+## 🚀 Live Demo
+
+[Riff Finder v1.0](https://riff-finder.vercel.app)
 
 ---
 

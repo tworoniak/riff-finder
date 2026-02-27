@@ -37,3 +37,9 @@ export default {
   },
   plugins: [],
 };
+
+// $rich-mahogany: #250902ff;
+// $rich-mahogany-2: #38040eff;
+// $black-cherry: #640d14ff;
+// $dark-wine: #800e13ff;
+// $brown-red: #ad2831ff;
