@@ -1,5 +1,5 @@
 import { Outlet, NavLink } from 'react-router-dom';
-import { SpotifyConnectButton } from '../components/SpotifyConnectButton';
+// import { SpotifyConnectButton } from '../components/SpotifyConnectButton';
 
 export default function AppLayout() {
   return (
@@ -29,7 +29,7 @@ export default function AppLayout() {
             >
               Discover
             </NavLink>
-            <SpotifyConnectButton />
+            {/* <SpotifyConnectButton /> */}
           </nav>
         </div>
       </header>
